@@ -3,6 +3,7 @@ import AuthScreen from './components/AuthScreen';
 import TopBar from './components/TopBar';
 import TenderFilters from './components/TenderFilters';
 import { TenderList, TenderDetail } from './components/TenderList';
+import ApprovalsView from './components/ApprovalsView';
 import {
   getSession,
   logout,
@@ -14,6 +15,7 @@ import {
 
 export default function App() {
   const [session, setSession] = useState(null);
+  const [view, setView] = useState('tenders');
   const [industry, setIndustry] = useState('');
   const [state, setState] = useState('');
   const [selectedId, setSelectedId] = useState(null);
@@ -60,45 +62,51 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <TopBar email={session.email} onSignOut={handleSignOut} />
+      <TopBar email={session.email} view={view} onNavigate={setView} onSignOut={handleSignOut} />
       <div className="content">
-        <div className="section-heading">
-          <h2>Latest Tenders</h2>
-        </div>
-        <p className="section-sub">
-          Browse tenders relevant to your product categories and subscribe to alerts.
-        </p>
+        {view === 'approvals' ? (
+          <ApprovalsView />
+        ) : (
+          <>
+            <div className="section-heading">
+              <h2>Latest Tenders</h2>
+            </div>
+            <p className="section-sub">
+              Browse tenders relevant to your product categories and subscribe to alerts.
+            </p>
 
-        {alertMessage && (
-          <div
-            className={`banner banner--${alertMessage.type}`}
-            data-testid="subscribe-alert-banner"
-          >
-            {alertMessage.text}
-          </div>
+            {alertMessage && (
+              <div
+                className={`banner banner--${alertMessage.type}`}
+                data-testid="subscribe-alert-banner"
+              >
+                {alertMessage.text}
+              </div>
+            )}
+
+            <TenderFilters
+              industries={getIndustries()}
+              states={getStates()}
+              industry={industry}
+              state={state}
+              onIndustryChange={(v) => {
+                setIndustry(v);
+                setAlertMessage(null);
+              }}
+              onStateChange={(v) => {
+                setState(v);
+                setAlertMessage(null);
+              }}
+              onSubscribe={handleSubscribe}
+            />
+
+            {selectedTender && (
+              <TenderDetail tender={selectedTender} onClose={() => setSelectedId(null)} />
+            )}
+
+            <TenderList tenders={filtered} onSelect={setSelectedId} />
+          </>
         )}
-
-        <TenderFilters
-          industries={getIndustries()}
-          states={getStates()}
-          industry={industry}
-          state={state}
-          onIndustryChange={(v) => {
-            setIndustry(v);
-            setAlertMessage(null);
-          }}
-          onStateChange={(v) => {
-            setState(v);
-            setAlertMessage(null);
-          }}
-          onSubscribe={handleSubscribe}
-        />
-
-        {selectedTender && (
-          <TenderDetail tender={selectedTender} onClose={() => setSelectedId(null)} />
-        )}
-
-        <TenderList tenders={filtered} onSelect={setSelectedId} />
       </div>
     </div>
   );

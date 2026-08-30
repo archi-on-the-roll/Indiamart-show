@@ -87,6 +87,34 @@ a:focus-visible {
   color: rgba(255, 255, 255, 0.8);
 }
 
+.topbar__nav {
+  display: flex;
+  gap: 6px;
+}
+
+.tab-button {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.75);
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tab-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.tab-button--active {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-weight: 600;
+}
+
 .btn-ghost {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.35);

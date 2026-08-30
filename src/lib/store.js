@@ -6,6 +6,7 @@
 const USERS_KEY = 'tenderboard_users';
 const SESSION_KEY = 'tenderboard_session';
 const ALERTS_KEY = 'tenderboard_alerts';
+const APPROVALS_KEY = 'tenderboard_approvals';
 
 function readJSON(key, fallback) {
   try {
@@ -183,4 +184,30 @@ export function subscribeToAlert({ industry, state }) {
   alerts.push(alert);
   writeJSON(ALERTS_KEY, alerts);
   return alert;
+}
+
+// --- Tender approvals ---
+
+export function getApprovals() {
+  return readJSON(APPROVALS_KEY, {});
+}
+
+export function getApprovalStatus(tenderId) {
+  return getApprovals()[tenderId] || 'pending';
+}
+
+export function getPendingApprovalTenders() {
+  return getTenders().filter((t) => getApprovalStatus(t.id) === 'pending');
+}
+
+export function approveTender(tenderId) {
+  const approvals = getApprovals();
+  approvals[tenderId] = 'approved';
+  writeJSON(APPROVALS_KEY, approvals);
+}
+
+export function rejectTender(tenderId) {
+  const approvals = getApprovals();
+  approvals[tenderId] = 'rejected';
+  writeJSON(APPROVALS_KEY, approvals);
 }
