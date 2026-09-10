@@ -23,8 +23,8 @@ test("Seller can filter tenders by state, select one, and return to the list", (
 
   step("Register and sign in as a seller", () => {
     switchToRegisterLink.click();
-    sellerNameInput.fill("Chennai Labware Co");
-    emailInput.fill("chennai.labware@example.com");
+    sellerNameInput.fill("Anna Scientific Supplies");
+    emailInput.fill("anna.scientific@example.com");
     passwordInput.fill("Secr3tPass!");
     authSubmitButton.click();
     expect(signOutButton).toBeVisible();
@@ -32,6 +32,7 @@ test("Seller can filter tenders by state, select one, and return to the list", (
 
   step("Filter tenders down to Tamil Nadu", () => {
     stateFilter.selectOption({ label: "Tamil Nadu" });
+    expect(stateFilter).toHaveValue("Tamil Nadu");
     expect(firstTenderRow).toContainText("Supply of Laboratory Glassware");
   });
 

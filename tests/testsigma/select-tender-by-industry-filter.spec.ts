@@ -22,8 +22,8 @@ test("Seller can filter tenders by industry and select one to view its details",
 
   step("Register and sign in as a seller", () => {
     switchToRegisterLink.click();
-    sellerNameInput.fill("Bengaluru Furnishings");
-    emailInput.fill("bengaluru.furnishings@example.com");
+    sellerNameInput.fill("Karnataka Office Interiors");
+    emailInput.fill("karnataka.interiors@example.com");
     passwordInput.fill("Secr3tPass!");
     authSubmitButton.click();
     expect(signOutButton).toBeVisible();
@@ -31,6 +31,7 @@ test("Seller can filter tenders by industry and select one to view its details",
 
   step("Filter tenders down to the Furniture industry", () => {
     industryFilter.selectOption({ label: "Furniture" });
+    expect(industryFilter).toHaveValue("Furniture");
     expect(firstTenderRow).toContainText("Procurement of Office Furniture for District Office");
   });
 

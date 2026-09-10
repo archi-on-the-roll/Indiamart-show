@@ -7,7 +7,12 @@ import {
   signOutButton,
   switchToRegisterLink,
 } from "./elements/auth.js";
-import { firstTenderRow, tenderDetailPanel, tenderDetailTitle } from "./elements/tenders.js";
+import {
+  firstTenderRow,
+  tenderDetailPanel,
+  tenderDetailStatusPill,
+  tenderDetailTitle,
+} from "./elements/tenders.js";
 
 test("Seller can select a tender to view its details", ({ page }) => {
   page.goto("http://localhost:3001");
@@ -16,8 +21,8 @@ test("Seller can select a tender to view its details", ({ page }) => {
 
   step("Register and sign in as a seller", () => {
     switchToRegisterLink.click();
-    sellerNameInput.fill("Acme Traders");
-    emailInput.fill("acme.seller@example.com");
+    sellerNameInput.fill("Pune Pumps & Valves");
+    emailInput.fill("pune.pumps@example.com");
     passwordInput.fill("Secr3tPass!");
     authSubmitButton.click();
     expect(signOutButton).toBeVisible();
@@ -28,5 +33,6 @@ test("Seller can select a tender to view its details", ({ page }) => {
     expect(tenderDetailPanel).toBeVisible();
     expect(tenderDetailTitle).toHaveText("Supply of Industrial Water Pumps");
     expect(tenderDetailPanel).toContainText("Maharashtra Industrial Development Corporation");
+    expect(tenderDetailStatusPill).toHaveText("OPEN");
   });
 });
