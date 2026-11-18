@@ -1,17 +1,82 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BAGS, COLORS } from "../data/bags";
-import type { Gender } from "../data/bags";
+import type { Bag, Gender } from "../data/bags";
 import { getUser, logout } from "../auth";
+import { useCart } from "../cart";
+import CartDrawer from "../components/CartDrawer";
 
 type GenderFilter = Gender | "All";
 type SortOrder = "high-to-low" | "low-to-high";
 
+function BagCard({ bag }: { bag: Bag }) {
+  const { quantityOf, add, setQuantity } = useCart();
+  const quantity = quantityOf(bag.id);
+
+  return (
+    <div
+      data-testid={`bag-card-${bag.id}`}
+      className="overflow-hidden rounded-lg border border-neutral-200 bg-white"
+    >
+      <img src={bag.imageUrl} alt={bag.name} className="aspect-square w-full object-cover" />
+      <div className="p-3">
+        <p className="text-sm font-medium text-neutral-900">{bag.name}</p>
+        <p className="text-xs text-neutral-500">
+          {bag.gender} · {bag.color.name}
+        </p>
+        <div className="mt-1 flex items-center justify-between">
+          <p data-testid={`bag-price-${bag.id}`} className="text-sm font-semibold text-neutral-900">
+            ${bag.price}
+          </p>
+
+          {quantity === 0 ? (
+            <button
+              type="button"
+              data-testid={`add-to-cart-${bag.id}`}
+              aria-label={`Add ${bag.name} to cart`}
+              onClick={() => add(bag.id)}
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-white hover:bg-neutral-700"
+            >
+              +
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5" data-testid={`quantity-stepper-${bag.id}`}>
+              <button
+                type="button"
+                data-testid={`decrement-${bag.id}`}
+                aria-label={`Decrease quantity of ${bag.name}`}
+                onClick={() => setQuantity(bag.id, quantity - 1)}
+                className="flex h-7 w-7 items-center justify-center rounded-full border border-neutral-300 text-sm hover:bg-neutral-100"
+              >
+                −
+              </button>
+              <span data-testid={`quantity-${bag.id}`} className="w-4 text-center text-sm font-medium">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                data-testid={`increment-${bag.id}`}
+                aria-label={`Increase quantity of ${bag.name}`}
+                onClick={() => add(bag.id)}
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-white hover:bg-neutral-700"
+              >
+                +
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Catalog() {
   const navigate = useNavigate();
+  const { totalItems } = useCart();
   const [gender, setGender] = useState<GenderFilter>("All");
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<SortOrder>("high-to-low");
+  const [cartOpen, setCartOpen] = useState(false);
 
   const filteredBags = useMemo(() => {
     let result = BAGS.filter((bag) => gender === "All" || bag.gender === gender);
@@ -48,6 +113,23 @@ export default function Catalog() {
           </span>
           <button
             type="button"
+            data-testid="cart-button"
+            aria-label="Open cart"
+            onClick={() => setCartOpen(true)}
+            className="relative rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-700 hover:bg-neutral-100"
+          >
+            Cart
+            {totalItems > 0 && (
+              <span
+                data-testid="cart-count"
+                className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-900 text-xs font-semibold text-white"
+              >
+                {totalItems}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
             data-testid="logout-button"
             onClick={handleLogout}
             className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-700 hover:bg-neutral-100"
@@ -56,6 +138,8 @@ export default function Catalog() {
           </button>
         </div>
       </header>
+
+      {cartOpen && <CartDrawer onClose={() => setCartOpen(false)} />}
 
       <main className="mx-auto max-w-6xl px-6 py-6">
         {/* Gender tabs */}
@@ -138,22 +222,7 @@ export default function Catalog() {
               className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4"
             >
               {filteredBags.map((bag) => (
-                <div
-                  key={bag.id}
-                  data-testid={`bag-card-${bag.id}`}
-                  className="overflow-hidden rounded-lg border border-neutral-200 bg-white"
-                >
-                  <img src={bag.imageUrl} alt={bag.name} className="aspect-square w-full object-cover" />
-                  <div className="p-3">
-                    <p className="text-sm font-medium text-neutral-900">{bag.name}</p>
-                    <p className="text-xs text-neutral-500">
-                      {bag.gender} · {bag.color.name}
-                    </p>
-                    <p data-testid={`bag-price-${bag.id}`} className="mt-1 text-sm font-semibold text-neutral-900">
-                      ${bag.price}
-                    </p>
-                  </div>
-                </div>
+                <BagCard key={bag.id} bag={bag} />
               ))}
             </div>
             {filteredBags.length === 0 && (
